@@ -50,12 +50,12 @@ def test_generate_features_with_default_parameters():
     for feature in feature_defs:
         assert feature[2] == {}
 
-    feature_dict = dict([_[0:2] for _ in feature_defs])
+    feature_dict = dict([_[:2] for _ in feature_defs])
     assert columns == sorted(feature_dict.keys())
 
     # default init arguments for MockClass for clarification.
     expected = {'value': 1, 'name': 'class'}
-    for column, transformers in feature_dict.items():
+    for transformers in feature_dict.values():
         for obj in transformers:
             assert_attributes(obj, **expected)
 

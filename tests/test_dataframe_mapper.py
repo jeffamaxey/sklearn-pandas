@@ -107,8 +107,7 @@ def multiindex_dataframe():
     """
     iterables = [['bar', 'baz', 'foo', 'qux'], ['one', 'two']]
     index = pd.MultiIndex.from_product(iterables, names=['first', 'second'])
-    df = pd.DataFrame(np.random.randn(10, 8), columns=index)
-    return df
+    return pd.DataFrame(np.random.randn(10, 8), columns=index)
 
 
 @pytest.fixture
@@ -900,7 +899,7 @@ def test_with_iris_dataframe(iris_dataframe):
     labels = iris_dataframe["species"]
     scores = cross_val_score(pipeline, data, labels)
     assert scores.mean() > 0.96
-    assert (scores.std() * 2) < 0.04
+    assert scores.std() < 0.02
 
 
 def test_dict_vectorizer():
@@ -952,7 +951,7 @@ def test_direct_cross_validation(iris_dataframe):
     labels = iris_dataframe["species"]
     scores = cross_val_score(pipeline, data, labels)
     assert scores.mean() > 0.96
-    assert (scores.std() * 2) < 0.04
+    assert scores.std() < 0.02
 
 
 def test_heterogeneous_output_types_input_df():

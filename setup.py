@@ -6,8 +6,7 @@ from setuptools.command.test import test as TestCommand
 import re
 
 for line in open('sklearn_pandas/__init__.py'):
-    match = re.match("__version__ *= *'(.*)'", line)
-    if match:
+    if match := re.match("__version__ *= *'(.*)'", line):
         __version__, = match.groups()
 
 

@@ -38,8 +38,7 @@ class TransformerPipeline(Pipeline):
     def __init__(self, steps):
         names, estimators = zip(*steps)
         if len(dict(steps)) != len(steps):
-            raise ValueError(
-                "Provided step names are not unique: %s" % (names,))
+            raise ValueError(f"Provided step names are not unique: {names}")
 
         # shallow copy of steps
         self.steps = tosequence(steps)
@@ -58,7 +57,7 @@ class TransformerPipeline(Pipeline):
                             % (estimator, type(estimator)))
 
     def _pre_transform(self, X, y=None, **fit_params):
-        fit_params_steps = dict((step, {}) for step, _ in self.steps)
+        fit_params_steps = {step: {} for step, _ in self.steps}
         for pname, pval in six.iteritems(fit_params):
             step, param = pname.split('__', 1)
             fit_params_steps[step][param] = pval

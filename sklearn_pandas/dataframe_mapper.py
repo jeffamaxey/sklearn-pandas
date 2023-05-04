@@ -58,10 +58,7 @@ def add_column_names_to_exception(column_names):
     try:
         yield
     except Exception as ex:
-        if ex.args:
-            msg = u'{}: {}'.format(column_names, ex.args[0])
-        else:
-            msg = text_type(column_names)
+        msg = f'{column_names}: {ex.args[0]}' if ex.args else text_type(column_names)
         ex.args = (msg,) + ex.args[1:]
         raise
 
@@ -214,16 +211,9 @@ class DataFrameMapper(BaseEstimator, TransformerMixin):
         elif isinstance(X, DataWrapper):
             X = X.df  # fetch underlying data
 
-        if return_vector:
-            t = X[cols[0]]
-        else:
-            t = X[cols]
-
+        t = X[cols[0]] if return_vector else X[cols]
         # return either a DataFrame/Series or a numpy array
-        if input_df:
-            return t
-        else:
-            return t.values
+        return t if input_df else t.values
 
     def fit(self, X, y=None):
         """
@@ -301,7 +291,7 @@ class DataFrameMapper(BaseEstimator, TransformerMixin):
         if prefix == suffix == "":
             return output
 
-        return ['{}{}{}'.format(prefix, x, suffix) for x in output]
+        return [f'{prefix}{x}{suffix}' for x in output]
 
     def get_dtypes(self, extracted):
         dtypes_features = [self.get_dtype(ex) for ex in extracted]
@@ -401,27 +391,22 @@ class DataFrameMapper(BaseEstimator, TransformerMixin):
         else:
             stacked = np.hstack(extracted)
 
-        if self.df_out:
-            # if no rows were dropped preserve the original index,
-            # otherwise use a new integer one
-            no_rows_dropped = len(X) == len(stacked)
-            if no_rows_dropped:
-                index = X.index
-            else:
-                index = None
-
-            # output different data types, if appropriate
-            dtypes = self.get_dtypes(extracted)
-            df_out = pd.DataFrame(
-                stacked,
-                columns=self.transformed_names_,
-                index=index)
-            # preserve types
-            for col, dtype in zip(self.transformed_names_, dtypes):
-                df_out[col] = df_out[col].astype(dtype)
-            return df_out
-        else:
+        if not self.df_out:
             return stacked
+        # if no rows were dropped preserve the original index,
+        # otherwise use a new integer one
+        no_rows_dropped = len(X) == len(stacked)
+        index = X.index if no_rows_dropped else None
+        # output different data types, if appropriate
+        dtypes = self.get_dtypes(extracted)
+        df_out = pd.DataFrame(
+            stacked,
+            columns=self.transformed_names_,
+            index=index)
+        # preserve types
+        for col, dtype in zip(self.transformed_names_, dtypes):
+            df_out[col] = df_out[col].astype(dtype)
+        return df_out
 
     def transform(self, X):
         """
